@@ -1,8 +1,8 @@
-Q1:  Find  the top Kauthors who  rank  the  highest based  onthe number  of  unique  coauthors they have.Here, Kis an input argument to the query.
+Q1:  Find  the top K authors who  rank  the  highest based  on the number  of  unique  coauthors they have.Here, K is an input argument to the query.
 
-Q2: For each author, find the top Kcoauthors with whom this authorhas publishedthe most,and  list  the  number  of  papers  between  this  author  and  her  coauthors.  Again, Kisan  input argument to the query.
+Q2: For each author, find the top K coauthors with whom this author has published the most, and  list  the  number  of  papers  between  this  author  and  her  coauthors.  Again, K is an  input argument to the query.
 
-Q3:Sort  all  the  papers  by  the  venue  name  (lexicographically)  and  then  by  the  publication year. Display the firstKpapers in the sorted list, where Kis an input argument to your query
+Q3:Sort  all  the  papers  by  the  venue  name  (lexicographically)  and  then  by  the  publication year. Display the first K papers in the sorted list, where K is an input argument to your query
 
 Q1. yarn jar q1-1.0-SNAPSHOT.jar Q1 /student0_paperauths.tsv /parti1.seqfile /Q1 5
 
