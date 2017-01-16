@@ -1,0 +1,35 @@
+Q1. For this query, we have 3 different MapReduce jobs.
+1. In the first one, we output the authors who worked together on a paper. So for each paperid, we have the authid stored in a string and separated by a comma.
+The shuffling is done on paperid.
+Map output : (paperid, authid)
+Reducer output : (paperid, list_of_coauthors)
+2. In the second job, the idea is to create pairs of authors worked together on a paper. For each author of a given paper, we create pairs of him and every coauthor that he has. Then, the reduce will be done one the authid key of every coauthor, and we will be able to count the unique coauthors that this authid (key) has, using a hashset.
+The shuffling is done on authid.
+Map output : (authid, authid2)
+Reduce output : (authid, num_coauthors)
+3. In the last one, the top K authors with the most number of coauthors are output, so that each line is (paperid, num_coauthors).
+We use a total order partitionner to sort the number of coauthors. The sorting is done in a increasing order but we want it in an decreasing order. The idea was to output in the previous reducer (before the partitioning) the keys multiplied by -1 and then multiply them again by -1 in the last reducer. Therefore, the partitioning will still be done in the increasing order but we put everything in order by multiplying the value by -1 again.
+The shuffling is done on the number of coauthors.
+Map output : (num_coauthors, authid)
+Reduce output : (authid, num_coauthors)
+
+Q2. For this query, we have 4 different jobs.
+1. Same as the first job of Query 1.
+2. We are going to create pairs (two authid in a string separated by a comma) of authors who worked together on a same paper and give it a value of 1. Then, the reducer will compute the number of papers this pair has worked on by reducing on the key (pair of coauthors).
+Map : ((authid1,authid2), 1)
+Reduce : ((authid1,authid2), num_papers)
+3. In this job, we will for each authid, for a given number K, output in a decreasing order the authid of its most frequent coauthor based on the number of shared papers. In the mapping phase, we take the first authid of the output of the previous reducer as a key and we construct the value with the second authid and the number of papers (still from the previous reducer). Then, in the reduce phase, for each authid (key), we get every coauthor and the number of papers and we format it to obtain the desired output.
+Map : (authid, (authid2,num_papers))
+Reduce : (authid, K*<authid,num_papers>)
+4. Last job uses the total order partitionner to sort the authid in the increasing order. We use the identity Mapper and Reducer here. The boundaries will be done based on the output of the previous reducer. So we have to make sure that everything is well parameterized. In our case, we wanted the sort to be done on a integer type so the casting was very important.
+
+Q3. For this query, we have 2 jobs.
+1. In the first job, we use the files as inputs : venue.tsv and papers.tsv, we take only what is needed in the mapping phase, that is venue_id, year and name in venue.tsv, and venue_id and paper_id in papers.tsv. We then reduce on venue_id to "join" both tables. We have 2 Map phases and 1 Reduce phase.
+The shuffling is done on venue_id.
+Map1 : (venue_id, (year, name))
+Map2 : (venue_id, paperid)
+Reduce : (venue_id, (year, name, paperid))
+2. The second job will be used to output the first K entries, sorted based on venue name and year of each paper. The idea is to use a composite key composed of name and year for each paper. By implementing comparators, we can then sort first by name and then by year each entry of paperid.
+The shuffling is done the pair (name, year).
+Map : ((name, year), paperid)
+Reduce : ((<name, year>), paperid)
